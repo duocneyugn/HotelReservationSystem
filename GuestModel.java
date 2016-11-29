@@ -50,9 +50,7 @@ public class GuestModel {
 	}
 
 	/**
-	 * 
 	 * @param ID of guest
-	 * @throws Exception 
 	 * @precondition: Guest ID is registered in the system
 	 * @postcondition: Guest is logged in
 	 */
@@ -76,10 +74,11 @@ public class GuestModel {
 	 * @precondition: Guest is added to the hotel
 	 */
 	public void signUp(String username) {
+		// Add guest to hotel
 		Guest g = new Guest(IDCounter, username);
 		IDCounter++;
 		ArrayList<Room> roomList = new ArrayList<Room>();
-		hotel.put(g, roomList); // Add guest to hotel
+		hotel.put(g, roomList); 
 		System.out.println("Success! Your id is " + g.getUserID());
 	}
 
@@ -94,55 +93,76 @@ public class GuestModel {
 		if (!hotel.get(currentGuest).contains(r)) {
 			throw new Exception(currentGuest.getUsername() + " did not reserve the room " + r.getRoomNumber());
 		}
-		hotel.get(currentGuest).remove(r); // Remove room from guest list of rooms
+		hotel.get(currentGuest).remove(r); 
 	}
-
+	
+	/**
+	 * Assigns a guest to a specified room number until guest cancels the reservation
+	 * @param roomNumber the number of the room
+	 * @precondition: user is signed in and room number exists in the system
+	 * @postcondition: Room is removed from available rooms and added to the map of occupied rooms
+	 */
 	public void addRoom(int roomNumber) {
-		Room r = availableRooms.get(roomNumber-1);
-		r.setCurrentStatus(true);
-		r.setStartDate(currentGuest.getStartDate());
-		r.setEndDate(currentGuest.getEndDate());
+		//	if (currentGuest == null) {
+		//		throw new NullPointerException();
+		//	}
 		
-		if (hotel.containsKey(currentGuest)) {
-			hotel.get(currentGuest).add(r);
+		//	Room r = availableRooms.get(roomNumber-1);
+		Room room = null;
+
+		// Locate room in data structure
+		for (Room r : availableRooms) {
+			if (r.getRoomNumber() == roomNumber) {
+				room = r;
+			}
 		}
-		else {
-			ArrayList<Room> guestRooms = new ArrayList<Room>();
-			hotel.put(currentGuest, guestRooms);
+
+		try {
+			// Set room information
+			room.setCurrentStatus(true);
+			room.setStartDate(currentGuest.getStartDate());
+			room.setEndDate(currentGuest.getEndDate());
+
+			// Add guest & room to data structure
+			if (hotel.containsKey(currentGuest)) {
+				hotel.get(currentGuest).add(room);
+			}
+			else {
+				ArrayList<Room> guestRooms = new ArrayList<Room>();
+				hotel.put(currentGuest, guestRooms);
+			}
+
+			availableRooms.remove(room);
+
+			// Notify all views
+			ChangeEvent event = new ChangeEvent(this);
+			for (ChangeListener c : listeners) {
+				c.stateChanged(event);
+			}
+			
+			System.out.println(room.toString());
 		}
-		
-		availableRooms.remove(r);
-		
-		ChangeEvent event = new ChangeEvent(this);
-		for (ChangeListener c : listeners) {
-			c.stateChanged(event);
+		catch (NullPointerException e) {
+			System.out.println("Room " + roomNumber + " is not available");
 		}
-		System.out.println(r.toString());
 	}
 
 	/**
 	 * Assigns a guest to a room until guest cancels the reservation
 	 * @param checkIn the check-in date
 	 * @param checkOut the check-out date
-	 * @param roomType the 
-	 * @precondition: check-in/check-out/room type is valid & user is signed in
+	 * @param roomType the type of the room 
+	 * @precondition: user is signed in
 	 * @postcondition: Room is removed from available rooms and added to the map of occupied rooms
 	 */
 	public void addRoom(String checkIn, String checkOut, String roomType) throws IllegalArgumentException, NullPointerException {
 		//		if (currentGuest == null) {
 		//			throw new NullPointerException();
 		//		}
-		if (checkIn.compareTo(checkOut) > 0) {
-			throw new IllegalArgumentException();
-		}
-		Date checkInDate = new Date(checkIn);
-		Date checkOutDate = new Date(checkOut);
-
-		currentGuest.setStartDate(checkInDate);
-		currentGuest.setEndDate(checkOutDate);
 
 		Room room = null;
 
+		// Locate room in data structure
 		if (roomType.equals("Economy")) {
 			for (int roomNum = 0; roomNum < 10; roomNum++) {
 				if (!availableRooms.get(roomNum).getCurrentStatus()) {
@@ -162,21 +182,29 @@ public class GuestModel {
 			}
 		}
 
-		room.setStartDate(checkInDate);
-		room.setEndDate(checkOutDate);
-		room.setCurrentStatus(true);
+		try {
+			// Set room information
+			room.setStartDate(currentGuest.getStartDate());
+			room.setEndDate(currentGuest.getEndDate());
+			room.setCurrentStatus(true);
 
-		if (hotel.containsKey(currentGuest)) {
-			hotel.get(currentGuest).add(room);
+			// Add guest & room to data structure
+			if (hotel.containsKey(currentGuest)) {
+				hotel.get(currentGuest).add(room);
+			}
+			else {
+				ArrayList<Room> guestRooms = new ArrayList<Room>();
+				hotel.put(currentGuest, guestRooms);
+			}
+			
+			// Notify all views
+			ChangeEvent event = new ChangeEvent(this);
+			for (ChangeListener c : listeners) {
+				c.stateChanged(event);
+			}
 		}
-		else {
-			ArrayList<Room> guestRooms = new ArrayList<Room>();
-			hotel.put(currentGuest, guestRooms);
-		}
-
-		ChangeEvent event = new ChangeEvent(this);
-		for (ChangeListener c : listeners) {
-			c.stateChanged(event);
+		catch (NullPointerException e) {
+			System.out.println("No available rooms");
 		}
 	}
 
@@ -189,8 +217,32 @@ public class GuestModel {
 		listeners.add(listener);
 	}
 
-	public void updateGuestData(Date s, Date e) {
+	/**
+	 * Updates guest data and room availability after user logs in and selects preferences
+	 * @param s the start date
+	 * @param e the end date
+	 * @precondition: date is valid, meaning, end date does not precede start date
+	 * @postcondition: guest data and room availability is updated
+	 */
+	public void updateData(Date s, Date e) {
+		// Check if date is valid
+		if (s.compareTo(e) > 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		// Update guest information
 		currentGuest.setStartDate(s);
 		currentGuest.setEndDate(e);
+
+		// Update availability information to display for current date
+		ArrayList<Room> newAvailability = availableRooms;
+		for (Guest g : hotel.keySet()) {
+			for (Room r : hotel.get(g)) {
+				if (r.isClash(s,e)) {
+					newAvailability.remove(r);
+				}
+			}
+		}
+		availableRooms = newAvailability;
 	}
 }

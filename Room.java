@@ -47,6 +47,17 @@ public class Room {
 		endDate = eDate;
 	}
 	
+	public boolean isClash(Date start, Date end) {
+		Room r1 = this;
+		if (r1.getStartDate().equals(start) && r1.getEndDate().equals(end)) {
+			return true;
+		}
+		if (r1.getStartDate().compareTo(end) <= 0 && start.compareTo(r1.getEndDate()) <= 0) {
+			return true;
+		}
+		return false;
+	}
+	
 	public String toString() {
 		String s = isCurrent + " " + roomType + " " + roomNumber + " " + startDate + " " + endDate;
 		return s;
