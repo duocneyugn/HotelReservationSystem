@@ -1,23 +1,23 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class HotelModel {
+public class HotelModel{
 	
-	private ArrayList<JComponent> c;
+	private JPanel data;
 	private ArrayList<ChangeListener> listeners;
 	
-	public HotelModel(ArrayList<JComponent> data) {
-		this.c = data;
+	public HotelModel(JPanel d) {
+		data = d;
 		listeners = new ArrayList<>();
 	}
 	
-	public ArrayList<JComponent> getData()
+	public JPanel getData()
 	{
-		return (ArrayList<JComponent>)(c.clone());
+		return data;
 	}
 
 	public void attach(ChangeListener c)
@@ -25,14 +25,12 @@ public class HotelModel {
 		listeners.add(c);
 	}
 	
-	public void update(int location, JComponent c)
+	public void update(JPanel d)
 	{
-		this.c.set(location, c);
+		data = d;
 		for (ChangeListener l : listeners)
 		{
 			l.stateChanged(new ChangeEvent(this));
 		}
 	}
-	
-	
 }
