@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
+import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -63,9 +65,9 @@ public class GuestModel {
 			}
 		}
 		if (currentGuest == null) {
+			JOptionPane.showMessageDialog(null, "This ID is not valid. Please enter another one.");
 			throw new NullPointerException();
 		}
-		System.out.println(currentGuest.getUserID());
 	}
 
 	/**
@@ -73,13 +75,14 @@ public class GuestModel {
 	 * @precondition: Guest signing up has unique username and ID # 
 	 * @precondition: Guest is added to the hotel
 	 */
-	public void signUp(String username) {
+	public Guest signUp(String username) {
 		// Add guest to hotel
 		Guest g = new Guest(IDCounter, username);
 		IDCounter++;
 		ArrayList<Room> roomList = new ArrayList<Room>();
 		hotel.put(g, roomList); 
-		System.out.println("Success! Your id is " + g.getUserID());
+		JOptionPane.showMessageDialog(null, "Success! Your id is " + g.getUserID());
+		return g;
 	}
 
 	/**
@@ -91,11 +94,13 @@ public class GuestModel {
 	 */
 	public void cancelReservation(Room r) throws Exception {
 		if (!hotel.get(currentGuest).contains(r)) {
-			throw new Exception(currentGuest.getUsername() + " did not reserve the room " + r.getRoomNumber());
+			String message = currentGuest.getUsername() + " did not reserve the room " + r.getRoomNumber();
+			JOptionPane.showMessageDialog(null, message);
+			throw new Exception(message);
 		}
 		hotel.get(currentGuest).remove(r); 
 	}
-	
+
 	/**
 	 * Assigns a guest to a specified room number until guest cancels the reservation
 	 * @param roomNumber the number of the room
@@ -103,11 +108,6 @@ public class GuestModel {
 	 * @postcondition: Room is removed from available rooms and added to the map of occupied rooms
 	 */
 	public void addRoom(int roomNumber) {
-		//	if (currentGuest == null) {
-		//		throw new NullPointerException();
-		//	}
-		
-		//	Room r = availableRooms.get(roomNumber-1);
 		Room room = null;
 
 		// Locate room in data structure
@@ -139,11 +139,10 @@ public class GuestModel {
 			for (ChangeListener c : listeners) {
 				c.stateChanged(event);
 			}
-			
-			System.out.println(room.toString());
 		}
 		catch (NullPointerException e) {
-			System.out.println("Room " + roomNumber + " is not available");
+			JOptionPane.showMessageDialog(null, "Room " + roomNumber + " is not available");
+			//System.out.println("Room " + roomNumber + " is not available");
 		}
 	}
 
@@ -156,10 +155,6 @@ public class GuestModel {
 	 * @postcondition: Room is removed from available rooms and added to the map of occupied rooms
 	 */
 	public void addRoom(String checkIn, String checkOut, String roomType) throws IllegalArgumentException, NullPointerException {
-		//		if (currentGuest == null) {
-		//			throw new NullPointerException();
-		//		}
-
 		Room room = null;
 
 		// Locate room in data structure
@@ -196,15 +191,12 @@ public class GuestModel {
 				ArrayList<Room> guestRooms = new ArrayList<Room>();
 				hotel.put(currentGuest, guestRooms);
 			}
-			
+
 			// Notify all views
-			ChangeEvent event = new ChangeEvent(this);
-			for (ChangeListener c : listeners) {
-				c.stateChanged(event);
-			}
+			update();
 		}
 		catch (NullPointerException e) {
-			System.out.println("No available rooms");
+			JOptionPane.showMessageDialog(null, "No rooms are available");
 		}
 	}
 
@@ -226,23 +218,53 @@ public class GuestModel {
 	 */
 	public void updateData(Date s, Date e) {
 		// Check if date is valid
-		if (s.compareTo(e) > 0) {
+		Date current = new Date();
+		GregorianCalendar ge = new GregorianCalendar();
+		ge.set(current.getYear(), current.getMonth(), current.getDate(), 0, 0);
+		current = ge.getTime();
+		
+		int timeDifference = (int) ((e.getTime()-s.getTime())/(1000*60*60*24));
+		if (s.compareTo(e) > 0 || s.compareTo(current) < 0 || timeDifference > 60) {
 			throw new IllegalArgumentException();
 		}
-		
+
 		// Update guest information
 		currentGuest.setStartDate(s);
 		currentGuest.setEndDate(e);
 
+
 		// Update availability information to display for current date
-		ArrayList<Room> newAvailability = availableRooms;
+		ArrayList<Room> newAvailability = new ArrayList<Room>(); 
+		//
+		for (int roomNum = 1; roomNum <= 20; roomNum++) {
+			Room r = new Room();
+			r.setRoomNumber(roomNum);
+			r.setCurrentStatus(false);
+			if (roomNum <= 10) {
+				r.setRoomType("Economy");
+			}
+			else if (roomNum > 10) {
+				r.setRoomType("Luxury");
+			}
+			newAvailability.add(r);
+		}
 		for (Guest g : hotel.keySet()) {
 			for (Room r : hotel.get(g)) {
+				newAvailability.get(r.getRoomNumber()-1).setStartDate(r.getStartDate());
+				newAvailability.get(r.getRoomNumber()-1).setEndDate(r.getEndDate());
+				newAvailability.get(r.getRoomNumber()-1).setCurrentStatus(true);
 				if (r.isClash(s,e)) {
 					newAvailability.remove(r);
 				}
 			}
 		}
 		availableRooms = newAvailability;
+	}
+
+	public void update(){
+		ChangeEvent event = new ChangeEvent(this);
+		for (ChangeListener c : listeners) {
+			c.stateChanged(event);
+		}
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -22,8 +23,12 @@ public class UserPreferencePanel extends JPanel{
 		setLayout(null);
 
 		// Components in userPreferencePanel
+		JLabel formatWarning = new JLabel("Enter date in MM/DD/YY format:");
+		formatWarning.setFont(new Font("Sans-serif", Font.PLAIN, 14));
+		formatWarning.setBounds(200, 50, 300, 50);
+		add(formatWarning);
 		JLabel checkInLabel = new JLabel("Check in");
-		checkInLabel.setBounds(200, 100, 50, 20);
+		checkInLabel.setBounds(200, 100, 100, 20);
 		final JTextField checkInField = new JTextField();
 		checkInField.setBounds(200, 120, 100, 50);
 		checkInField.setFont(new Font("Sans-serif", Font.PLAIN, 14));
@@ -48,19 +53,20 @@ public class UserPreferencePanel extends JPanel{
 		luxuryRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
-					Date checkIn = new Date(checkInField.getText());
-					Date checkOut = new Date(checkOutField.getText());
+					checkIn = new Date(checkInField.getText());
+					checkOut = new Date(checkOutField.getText());
 					rPanel.setStartDate(checkIn);
 					rPanel.setEndDate(checkOut);
 					rPanel.setRoomType("Luxury");
 					model.updateData(checkIn, checkOut);
 					hm.update(0, rPanel);
+				
 				}
 				catch(NullPointerException n) {
-					System.out.println("Please log in");
+					JOptionPane.showMessageDialog(null, "Please log in");
 				}
 				catch(IllegalArgumentException e) {
-					System.out.println("Please enter a valid check-in and check-out date");
+					JOptionPane.showMessageDialog(null, "Please enter a valid check-in and check-out date");
 				}
 			}
 		});
@@ -68,19 +74,21 @@ public class UserPreferencePanel extends JPanel{
 		econRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
-					Date checkIn = new Date(checkInField.getText());
-					Date checkOut = new Date(checkOutField.getText());
+					checkIn = new Date(checkInField.getText());
+					checkOut = new Date(checkOutField.getText());
 					rPanel.setStartDate(checkIn);
 					rPanel.setEndDate(checkOut);
 					rPanel.setRoomType("Economy");
 					model.updateData(checkIn, checkOut);
+					rPanel.updateData(model);
 					hm.update(0, rPanel);
+					
 				}
 				catch(NullPointerException n) {
-					System.out.println("Please log in");
+					JOptionPane.showMessageDialog(null, "Please log in");
 				}
 				catch(IllegalArgumentException e) {
-					System.out.println("Please enter a valid check-in and check-out date");
+					JOptionPane.showMessageDialog(null, "Please enter a valid check-in and check-out date");
 				}
 			}
 		});
@@ -92,4 +100,5 @@ public class UserPreferencePanel extends JPanel{
 		add(luxuryRoomButton);
 		add(econRoomButton);
 	}
+	
 }

@@ -8,12 +8,8 @@ public class HotelReservationSystem {
 		ArrayList<JComponent> a = new ArrayList<>();
 		HotelModel hotel = new HotelModel(a);
 		GuestModel gm = new GuestModel();
-		gm.signUp("test");
-		gm.signIn(0);
-		ReservationPanel rp = new ReservationPanel(hotel, gm);
-		a.add(new UserPreferencePanel(hotel, gm, rp));
-		a.add(rp);
 		
+		a.add(new UserPanel(hotel, gm));
 		HotelFrame frame = new HotelFrame(hotel);
 		hotel.attach(frame);
 	}

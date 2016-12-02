@@ -21,8 +21,10 @@ public class ReservationPanel extends JPanel {
 	private JTextArea availabilityDisplay;
 	private GuestModel guestModel;
 	private String roomType;
+	private HotelModel hotelData;
 	
 	public ReservationPanel(HotelModel hm, GuestModel gm) {
+		hotelData = hm;
 		guestModel = gm;
 		ChangeListener listener = new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -32,13 +34,6 @@ public class ReservationPanel extends JPanel {
 		hm.attach(listener);
 		guestModel.addChangeListener(listener);
 
-
-		/* http://stackoverflow.com/questions/2592207/how-to-improve-look-and-feel-of-java-swing-gui */
-		try { 
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		setLayout(null);
 		availabilityLabel = new JLabel();
 		availabilityLabel.setBounds(10, 10, 300, 50);
@@ -49,7 +44,6 @@ public class ReservationPanel extends JPanel {
 		pane.setBounds(25, 50, 200, 300);
 
 		add(pane);
-		//		add(availabilityDisplay);
 
 		JLabel requestLabel = new JLabel("Enter room number to reserve:");
 		requestLabel.setBounds(300, 70, 300, 50);
@@ -80,17 +74,17 @@ public class ReservationPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int roomNumber = Integer.parseInt(roomTextField.getText());
 				if (roomNumber <= 10 && roomType.equals("Luxury")) {
-					System.out.println("Please select one of the available rooms shown.");
+					JOptionPane.showMessageDialog(null, "Please select one of the available rooms shown.");
 				}
 				else if (roomNumber > 10 && roomType.equals("Economy")) {
-					System.out.println("Please select one of the available rooms shown.");
+					JOptionPane.showMessageDialog(null, "Please select one of the available rooms shown.");
 				}
 				else {
 					try {
 						gm.addRoom(roomNumber);
 					}
 					catch(IndexOutOfBoundsException oob) {
-						System.out.println("Please select one of the available rooms shown.");
+						JOptionPane.showMessageDialog(null, "Please select one of the available rooms shown.");
 					}
 				}
 			}
@@ -98,11 +92,12 @@ public class ReservationPanel extends JPanel {
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Receipt window
+				// Serialize
 			}
 		});
 		loopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				hm.update(0, new UserPreferencePanel(hm, new ReservationPanel(hm,gm)));
+				hm.update(0, new UserPreferencePanel(hm, guestModel, new ReservationPanel(hm,guestModel)));
 			}
 		});
 
@@ -123,7 +118,6 @@ public class ReservationPanel extends JPanel {
 			title = "Available Rooms " + formatDate(startDate) + " - " + formatDate(endDate);
 		}
 
-		System.out.println(guestModel.getRooms(type));
 		availabilityDisplay.setText(guestModel.getRooms(type));
 
 
@@ -192,5 +186,9 @@ public class ReservationPanel extends JPanel {
 			dom = "0" + dom;
 		}
 		return m + "/" + dom + "/" + y.substring(2);
+	}
+	
+	public void updateData(GuestModel gm){
+		guestModel = gm;
 	}
 }

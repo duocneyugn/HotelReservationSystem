@@ -58,6 +58,15 @@ public class Room {
 		return false;
 	}
 	
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null) return false;
+		if (o.getClass() != getClass()) return false;
+		Room r = (Room)o;
+		return r.getCurrentStatus() == isCurrent && r.getStartDate().equals(startDate) 
+				&& r.getEndDate().equals(endDate) && r.getRoomNumber() == roomNumber && r.getRoomType() == roomType;
+	}
+	
 	public String toString() {
 		String s = isCurrent + " " + roomType + " " + roomNumber + " " + startDate + " " + endDate;
 		return s;

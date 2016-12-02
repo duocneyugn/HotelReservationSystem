@@ -33,4 +33,6 @@ public class HotelModel {
 			l.stateChanged(new ChangeEvent(this));
 		}
 	}
+	
+	
 }

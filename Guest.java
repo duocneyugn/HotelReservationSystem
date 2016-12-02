@@ -1,8 +1,7 @@
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Guest implements Comparable<Guest>{
-	//	private ArrayList<Room> reservedRooms;
+public class Guest implements Comparable<Guest> {
 	private int userID;
 	private String username;
 	private Date startDate;
@@ -12,10 +11,6 @@ public class Guest implements Comparable<Guest>{
 		userID = ID;
 		username = user;
 	}
-
-	//	public ArrayList<Room> getReservedRooms() {
-	//		return reservedRooms;
-	//	}
 
 	public int getUserID() {
 		return userID;
@@ -44,14 +39,6 @@ public class Guest implements Comparable<Guest>{
 	public void setEndDate(Date eDate) {
 		endDate = eDate;
 	}
-
-	//	public void addReservedRoom(Room room) {
-	//		reservedRooms.add(room);
-	//	}
-	//	
-	//	public void removeReservedRoom(Room room) {
-	//		reservedRooms.remove(room);
-	//	}
 
 	public void setUsername(String user) {
 		username = user;
