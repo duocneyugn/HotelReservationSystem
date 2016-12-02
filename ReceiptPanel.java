@@ -4,19 +4,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class ReceiptPanel extends JPanel{
-	
-	private GuestModel guestModel;
+	//**********Nhu you can continue here.
 	private HotelModel hotel;
-	private final String FILE_NAME = "guestmodel.txt";
+	private Reservations reservations;
+	private final String FILE_NAME = "reservations.txt";
 	
-	public ReceiptPanel(GuestModel gm, HotelModel hm) {
-		guestModel = gm;
+	public ReceiptPanel(Reservations r, HotelModel hm) {
+		reservations = r;
 		hotel = hm;
 		
 		JLabel test = new JLabel("Print receipt");
@@ -28,10 +29,9 @@ public class ReceiptPanel extends JPanel{
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						serialize();
-						hotel.update(new WelcomePanel(hotel));
+						System.exit(0);
 					}
 		});
-		
 		
 		
 		add(test);
@@ -48,7 +48,7 @@ public class ReceiptPanel extends JPanel{
 		try {
 			FileOutputStream fileOut = new FileOutputStream(FILE_NAME);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(guestModel);
+			out.writeObject(reservations);
 			out.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

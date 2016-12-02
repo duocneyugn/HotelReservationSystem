@@ -1,40 +1,22 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class GuestModel implements Serializable{
-	private HashMap<Guest, ArrayList<Room>> hotel;
-	private ArrayList<Room> availableRooms;
+public class GuestModel{
+
 	private ArrayList<ChangeListener> listeners;
-	private int IDCounter;
-	private int currentID;
-	private Guest currentGuest;
+	private Reservations re;
 
-	public GuestModel() {
-		hotel = new HashMap<Guest, ArrayList<Room>>();
+	public GuestModel(Reservations r) {
+		re = r;
+		//create new reservations
 		listeners = new ArrayList<ChangeListener>();
-		availableRooms = new ArrayList<Room>();
-		IDCounter = 0;
 
-		// Initialize the availableRooms arrayList
-		for (int roomNum = 1; roomNum <= 20; roomNum++) {
-			Room r = new Room();
-			r.setRoomNumber(roomNum);
-			r.setCurrentStatus(false);
-			if (roomNum <= 10) {
-				r.setRoomType("Economy");
-			}
-			else if (roomNum > 10) {
-				r.setRoomType("Luxury");
-			}
-			availableRooms.add(r);
-		}
 	}
 
 	/**
@@ -43,13 +25,8 @@ public class GuestModel implements Serializable{
 	 * @return s a string with data of current available rooms
 	 */	
 	public String getRooms(String type) {
-		String s = "";
-		for (Room r : availableRooms) {
-			if (r.getRoomType().equals(type)) {
-				s += r.getRoomNumber() + "\n";
-			}
-		}
-		return s;
+		//call method
+		return re.getRooms(type);
 	}
 
 	/**
@@ -58,18 +35,15 @@ public class GuestModel implements Serializable{
 	 * @postcondition: Guest is logged in
 	 */
 	public void signIn(int ID) throws NullPointerException {
-		for (Guest g : hotel.keySet()) {
-			if (g.getUserID() == ID) {
-				currentGuest = g;
-				currentID = ID;
-				break;
-			}
-		}
+		//call method 
+		re.signIn(ID);
+		Guest currentGuest = re.getCurrentGuest();
+		//call get current guest
 		if (currentGuest == null) {
 			JOptionPane.showMessageDialog(null, "This ID is not valid. Please enter another one.");
 			throw new NullPointerException();
 		}
-//		System.out.println(currentGuest.getUserID());
+		System.out.println(currentGuest.getUserID());
 	}
 
 	/**
@@ -79,13 +53,8 @@ public class GuestModel implements Serializable{
 	 */
 	public Guest signUp(String username) {
 		// Add guest to hotel
-		Guest g = new Guest(IDCounter, username);
-		IDCounter++;
-		ArrayList<Room> roomList = new ArrayList<Room>();
-		hotel.put(g, roomList); 
-		JOptionPane.showMessageDialog(null, "Success! Your id is " + g.getUserID());
-//		System.out.println("Success! Your id is " + g.getUserID());
-		return g;
+		//call method
+		return re.signUp(username);
 	}
 
 	/**
@@ -96,14 +65,10 @@ public class GuestModel implements Serializable{
 	 * @postcondition: Room is removed from Guest's arraylist in hotel
 	 */
 	public void cancelReservation(Room r) throws Exception {
-		if (!hotel.get(currentGuest).contains(r)) {
-			String message = currentGuest.getUsername() + " did not reserve the room " + r.getRoomNumber();
-			JOptionPane.showMessageDialog(null, message);
-			throw new Exception(message);
-		}
-		hotel.get(currentGuest).remove(r); 
+		//call method
+		re.cancelReservation(r);
 	}
-	
+
 	/**
 	 * Assigns a guest to a specified room number until guest cancels the reservation
 	 * @param roomNumber the number of the room
@@ -111,41 +76,16 @@ public class GuestModel implements Serializable{
 	 * @postcondition: Room is removed from available rooms and added to the map of occupied rooms
 	 */
 	public void addRoom(int roomNumber) {
-		Room room = null;
 
-		// Locate room in data structure
-		for (Room r : availableRooms) {
-			if (r.getRoomNumber() == roomNumber) {
-				room = r;
-			}
+		//call method
+		re.addRoom(roomNumber);
+		// Notify all views
+		ChangeEvent event = new ChangeEvent(this);
+		for (ChangeListener c : listeners) {
+			c.stateChanged(event);
 		}
 
-		try {
-			// Set room information
-			room.setCurrentStatus(true);
-			room.setStartDate(currentGuest.getStartDate());
-			room.setEndDate(currentGuest.getEndDate());
 
-			// Add guest & room to data structure
-			if (hotel.containsKey(currentGuest)) {
-				hotel.get(currentGuest).add(room);
-			}
-			else {
-				ArrayList<Room> guestRooms = new ArrayList<Room>();
-				hotel.put(currentGuest, guestRooms);
-			}
-
-			availableRooms.remove(room);
-
-			// Notify all views
-			update();
-			
-//			System.out.println(room.toString());
-		}
-		catch (NullPointerException e) {
-			JOptionPane.showMessageDialog(null, "Room " + roomNumber + " is not available");
-//			System.out.println("Room " + roomNumber + " is not available");
-		}
 	}
 
 	/**
@@ -157,49 +97,14 @@ public class GuestModel implements Serializable{
 	 * @postcondition: Room is removed from available rooms and added to the map of occupied rooms
 	 */
 	public void addRoom(String checkIn, String checkOut, String roomType) throws IllegalArgumentException, NullPointerException {
-		Room room = null;
-
-		// Locate room in data structure
-		if (roomType.equals("Economy")) {
-			for (int roomNum = 0; roomNum < 10; roomNum++) {
-				if (!availableRooms.get(roomNum).getCurrentStatus()) {
-					room = availableRooms.get(roomNum);
-					availableRooms.remove(roomNum);
-					break;
-				}
-			}
-		}
-		else if (roomType.equals("Luxury")) {
-			for (int roomNum = 10; roomNum < 20; roomNum++) {
-				if (!availableRooms.get(roomNum).getCurrentStatus()) {
-					room = availableRooms.get(roomNum);
-					availableRooms.remove(roomNum);
-					break;
-				}
-			}
-		}
-
-		try {
-			// Set room information
-			room.setStartDate(currentGuest.getStartDate());
-			room.setEndDate(currentGuest.getEndDate());
-			room.setCurrentStatus(true);
-
-			// Add guest & room to data structure
-			if (hotel.containsKey(currentGuest)) {
-				hotel.get(currentGuest).add(room);
-			}
-			else {
-				ArrayList<Room> guestRooms = new ArrayList<Room>();
-				hotel.put(currentGuest, guestRooms);
-			}
-			
+		//call method
+		re.addRoom(checkIn, checkOut, roomType);
 			// Notify all views
-			update();
-		}
-		catch (NullPointerException e) {
-			System.out.println("No available rooms");
-		}
+			ChangeEvent event = new ChangeEvent(this);
+			for (ChangeListener c : listeners) {
+				c.stateChanged(event);
+			}
+
 	}
 
 	/**
@@ -219,59 +124,20 @@ public class GuestModel implements Serializable{
 	 * @postcondition: guest data and room availability is updated
 	 */
 	public void updateData(Date s, Date e) {
-		// Check if date is valid
-		Date current = new Date();
-		GregorianCalendar ge = new GregorianCalendar();
-		ge.set(current.getYear(), current.getMonth(), current.getDate(), 0, 0);
-		current = ge.getTime();
-		
-		int timeDifference = (int) ((e.getTime()-s.getTime())/(1000*60*60*24));
-		if (s.compareTo(e) > 0 || s.compareTo(current) < 0 || timeDifference > 60) {
-			throw new IllegalArgumentException();
-		}
-
-		// Update guest information
-		currentGuest.setStartDate(s);
-		currentGuest.setEndDate(e);
-
-
-		// Update availability information to display for current date
-		ArrayList<Room> newAvailability = new ArrayList<Room>(); 
-		//
-		for (int roomNum = 1; roomNum <= 20; roomNum++) {
-			Room r = new Room();
-			r.setRoomNumber(roomNum);
-			r.setCurrentStatus(false);
-			if (roomNum <= 10) {
-				r.setRoomType("Economy");
-			}
-			else if (roomNum > 10) {
-				r.setRoomType("Luxury");
-			}
-			newAvailability.add(r);
-		}
-		for (Guest g : hotel.keySet()) {
-			for (Room r : hotel.get(g)) {
-				newAvailability.get(r.getRoomNumber()-1).setStartDate(r.getStartDate());
-				newAvailability.get(r.getRoomNumber()-1).setEndDate(r.getEndDate());
-				newAvailability.get(r.getRoomNumber()-1).setCurrentStatus(true);
-				if (r.isClash(s,e)) {
-					newAvailability.remove(r);
-				}
-			}
-		}
-		availableRooms = newAvailability;
+		//call method
+		re.updateData(s, e);
 	}
-	
+
 	public void update(){
 		ChangeEvent event = new ChangeEvent(this);
 		for (ChangeListener c : listeners) {
 			c.stateChanged(event);
 		}
 	}
-	
-	//////******* new codes from Duoc. Will organize later. 
-	
 
+
+	public Reservations getReservations(){
+		return re;
+	}
 
 }

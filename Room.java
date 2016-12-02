@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Date;
 
-public class Room {
+public class Room implements Serializable{
 	private boolean isCurrent;
 	private String roomType;
 	private int roomNumber;

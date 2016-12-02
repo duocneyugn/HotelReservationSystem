@@ -17,8 +17,7 @@ import javax.swing.JPanel;
 
 public class WelcomePanel extends JPanel{
 
-	private GuestModel guestModel; 
-	private final String FILE_NAME = "guestmodel.txt";
+	private final String FILE_NAME = "reservations.txt";
 	
 	public WelcomePanel(HotelModel hotel) {
 		setLayout(null);
@@ -38,7 +37,8 @@ public class WelcomePanel extends JPanel{
 				ActionListener() {
 
 					public void actionPerformed(ActionEvent e) {
-						guestModel = deserialize();
+						Reservations r = deserialize();
+						GuestModel guestModel = new GuestModel(r);
 						
 						hotel.update(new UserPanel(hotel, guestModel));
 						
@@ -56,19 +56,19 @@ public class WelcomePanel extends JPanel{
 	 * Gets all reservations from guestmodel.txt file.
 	 * @return	Events Calendar.
 	 */
-	public GuestModel deserialize(){
-		GuestModel result = null;
+	public Reservations deserialize(){
+		Reservations result = null;
 
 		try {
 			File file = new File(FILE_NAME);
 			
 			if(!file.exists()){
-				return new GuestModel();	//returns a new GuestModel for the very first run
+				return new Reservations();	//returns a new GuestModel for the very first run
 			}
 			
 			FileInputStream fileIn = new FileInputStream(FILE_NAME);
 			ObjectInputStream in = new ObjectInputStream(fileIn);
-			result = (GuestModel) in.readObject();
+			result = (Reservations) in.readObject();
 			in.close();
 			fileIn.close();
 			

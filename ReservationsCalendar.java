@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TreeMap;
 
-public class ReservationsCalendar implements Serializable{
+public class ReservationsCalendar{
 	
 	private TreeMap<Date, ArrayList<Room>> eventMap;
 	

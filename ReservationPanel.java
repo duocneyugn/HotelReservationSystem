@@ -3,6 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.swing.*;
@@ -14,7 +15,7 @@ import javax.swing.event.ChangeListener;
  * Responsible for creating the look and feel of the room availability view
  *
  */
-public class ReservationPanel extends JPanel {
+public class ReservationPanel extends JPanel implements Serializable{
 	private Date startDate;
 	private Date endDate;
 	private JLabel availabilityLabel;
@@ -92,7 +93,7 @@ public class ReservationPanel extends JPanel {
 		doneButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Receipt window *** todo
-				hotel.update(new ReceiptPanel(guestModel, hotel));
+				hotel.update(new ReceiptPanel(guestModel.getReservations(), hotel));
 			}
 		});
 		loopButton.addActionListener(new ActionListener() {
@@ -117,10 +118,7 @@ public class ReservationPanel extends JPanel {
 		if (startDate != null  & endDate != null) {
 			title = "Available Rooms " + formatDate(startDate) + " - " + formatDate(endDate);
 		}
-
-		System.out.println(guestModel.getRooms(type));
 		availabilityDisplay.setText(guestModel.getRooms(type));
-
 
 		availabilityLabel.setText(title);
 		add(availabilityLabel);

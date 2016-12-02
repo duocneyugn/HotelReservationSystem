@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Guest implements Comparable<Guest> {
+public class Guest implements Comparable<Guest>, Serializable{
 	private int userID;
 	private String username;
 	private Date startDate;
