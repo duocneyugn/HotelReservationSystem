@@ -28,7 +28,7 @@ public class UserPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				SignUpPanel signup = new SignUpPanel(hotel, guestData);
-				hotel.update(0, signup);
+				hotel.update(signup);
 			}
 			
 		});
@@ -36,7 +36,7 @@ public class UserPanel extends JPanel{
 		signin.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				SignInPanel signin = new SignInPanel(hotel, guestData);
-				hotel.update(0, signin);
+				hotel.update(signin);
 			}
 
 		});

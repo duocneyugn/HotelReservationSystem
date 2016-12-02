@@ -59,7 +59,8 @@ public class UserPreferencePanel extends JPanel{
 					rPanel.setEndDate(checkOut);
 					rPanel.setRoomType("Luxury");
 					model.updateData(checkIn, checkOut);
-					hm.update(0, rPanel);
+					//rPanel.updateData(model);
+					hm.update(rPanel);
 				
 				}
 				catch(NullPointerException n) {
@@ -81,7 +82,7 @@ public class UserPreferencePanel extends JPanel{
 					rPanel.setRoomType("Economy");
 					model.updateData(checkIn, checkOut);
 					rPanel.updateData(model);
-					hm.update(0, rPanel);
+					hm.update(rPanel);
 					
 				}
 				catch(NullPointerException n) {

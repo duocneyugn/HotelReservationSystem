@@ -21,10 +21,10 @@ public class ReservationPanel extends JPanel {
 	private JTextArea availabilityDisplay;
 	private GuestModel guestModel;
 	private String roomType;
-	private HotelModel hotelData;
+	private HotelModel hotel;
 	
 	public ReservationPanel(HotelModel hm, GuestModel gm) {
-		hotelData = hm;
+		hotel = hm;
 		guestModel = gm;
 		ChangeListener listener = new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -56,8 +56,8 @@ public class ReservationPanel extends JPanel {
 		confirmButton.setBounds(400, 120, 100, 50);
 		JButton loopButton = new JButton("More reservations?");
 		loopButton.setBounds(300, 200, 170, 50);
-		JButton quitButton = new JButton("Done");
-		quitButton.setBounds(500, 200, 100, 50);
+		JButton doneButton = new JButton("Done");
+		doneButton.setBounds(500, 200, 100, 50);
 
 		roomTextField.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent event) {
@@ -89,15 +89,15 @@ public class ReservationPanel extends JPanel {
 				}
 			}
 		});
-		quitButton.addActionListener(new ActionListener() {
+		doneButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Receipt window
-				// Serialize
+				// Receipt window *** todo
+				hotel.update(new ReceiptPanel(guestModel, hotel));
 			}
 		});
 		loopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				hm.update(0, new UserPreferencePanel(hm, guestModel, new ReservationPanel(hm,guestModel)));
+				hm.update(new UserPreferencePanel(hm, guestModel, new ReservationPanel(hm,guestModel)));
 			}
 		});
 
@@ -105,7 +105,7 @@ public class ReservationPanel extends JPanel {
 		add(roomTextField);
 		add(confirmButton);
 		add(loopButton);
-		add(quitButton);
+		add(doneButton);
 	}
 
 	/**
@@ -118,6 +118,7 @@ public class ReservationPanel extends JPanel {
 			title = "Available Rooms " + formatDate(startDate) + " - " + formatDate(endDate);
 		}
 
+		System.out.println(guestModel.getRooms(type));
 		availabilityDisplay.setText(guestModel.getRooms(type));
 
 
@@ -190,5 +191,7 @@ public class ReservationPanel extends JPanel {
 	
 	public void updateData(GuestModel gm){
 		guestModel = gm;
+		
+		
 	}
 }

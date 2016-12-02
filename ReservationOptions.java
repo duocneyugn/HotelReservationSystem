@@ -33,7 +33,7 @@ public class ReservationOptions extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				gm.signIn(g.getUserID());
 				ReservationPanel rp = new ReservationPanel(hotel, gm);
-				hotel.update(0, new UserPreferencePanel(hotel, gm, rp));
+				hotel.update(new UserPreferencePanel(hotel, gm, rp));
 			}
 		});
 		

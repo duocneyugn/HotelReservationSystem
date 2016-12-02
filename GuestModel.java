@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -7,7 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class GuestModel {
+public class GuestModel implements Serializable{
 	private HashMap<Guest, ArrayList<Room>> hotel;
 	private ArrayList<Room> availableRooms;
 	private ArrayList<ChangeListener> listeners;
@@ -68,6 +69,7 @@ public class GuestModel {
 			JOptionPane.showMessageDialog(null, "This ID is not valid. Please enter another one.");
 			throw new NullPointerException();
 		}
+//		System.out.println(currentGuest.getUserID());
 	}
 
 	/**
@@ -82,6 +84,7 @@ public class GuestModel {
 		ArrayList<Room> roomList = new ArrayList<Room>();
 		hotel.put(g, roomList); 
 		JOptionPane.showMessageDialog(null, "Success! Your id is " + g.getUserID());
+//		System.out.println("Success! Your id is " + g.getUserID());
 		return g;
 	}
 
@@ -100,7 +103,7 @@ public class GuestModel {
 		}
 		hotel.get(currentGuest).remove(r); 
 	}
-
+	
 	/**
 	 * Assigns a guest to a specified room number until guest cancels the reservation
 	 * @param roomNumber the number of the room
@@ -135,14 +138,13 @@ public class GuestModel {
 			availableRooms.remove(room);
 
 			// Notify all views
-			ChangeEvent event = new ChangeEvent(this);
-			for (ChangeListener c : listeners) {
-				c.stateChanged(event);
-			}
+			update();
+			
+//			System.out.println(room.toString());
 		}
 		catch (NullPointerException e) {
 			JOptionPane.showMessageDialog(null, "Room " + roomNumber + " is not available");
-			//System.out.println("Room " + roomNumber + " is not available");
+//			System.out.println("Room " + roomNumber + " is not available");
 		}
 	}
 
@@ -191,12 +193,12 @@ public class GuestModel {
 				ArrayList<Room> guestRooms = new ArrayList<Room>();
 				hotel.put(currentGuest, guestRooms);
 			}
-
+			
 			// Notify all views
 			update();
 		}
 		catch (NullPointerException e) {
-			JOptionPane.showMessageDialog(null, "No rooms are available");
+			System.out.println("No available rooms");
 		}
 	}
 
@@ -260,11 +262,16 @@ public class GuestModel {
 		}
 		availableRooms = newAvailability;
 	}
-
+	
 	public void update(){
 		ChangeEvent event = new ChangeEvent(this);
 		for (ChangeListener c : listeners) {
 			c.stateChanged(event);
 		}
 	}
+	
+	//////******* new codes from Duoc. Will organize later. 
+	
+
+
 }

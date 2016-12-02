@@ -35,7 +35,7 @@ public class SignUpPanel extends JPanel {
 				String username = usernameinput.getText();
 				Guest g = guestData.signUp(username);
 				guestData.signIn(g.getUserID());
-				hotel.update(0, new ReservationOptions(hotel, guestData, g));
+				hotel.update(new ReservationOptions(hotel, guestData, g));
 
 			}
 
