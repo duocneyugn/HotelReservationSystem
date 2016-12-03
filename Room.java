@@ -64,8 +64,9 @@ public class Room implements Serializable{
 		if (o == null) return false;
 		if (o.getClass() != getClass()) return false;
 		Room r = (Room)o;
-		return r.getCurrentStatus() == isCurrent && r.getStartDate().equals(startDate) 
-				&& r.getEndDate().equals(endDate) && r.getRoomNumber() == roomNumber && r.getRoomType() == roomType;
+
+		return r.getCurrentStatus() == isCurrent && r.getStartDate().compareTo(startDate) == 0 
+				&& r.getEndDate().compareTo(endDate) == 0 && r.getRoomNumber() == roomNumber && r.getRoomType().compareTo(roomType) == 0;
 	}
 	
 	public String toString() {
