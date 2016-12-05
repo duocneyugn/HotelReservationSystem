@@ -15,7 +15,7 @@ import javax.swing.event.ChangeListener;
  * Responsible for creating the look and feel of the room availability view
  *
  */
-public class ReservationPanel extends JPanel{
+public class ReservationPanel extends JPanel implements Serializable{
 	private Date startDate;
 	private Date endDate;
 	private JLabel availabilityLabel;
@@ -93,7 +93,7 @@ public class ReservationPanel extends JPanel{
 		doneButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Receipt window *** todo
-				hotel.update(new ReceiptPanel(guestModel.getReservations(), hotel));
+				hotel.update(new ReceiptOptions(guestModel.getReservations(), hotel, guestModel));
 			}
 		});
 		loopButton.addActionListener(new ActionListener() {
